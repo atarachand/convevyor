@@ -12,30 +12,38 @@ import threading
 st.set_page_config(page_title="MQTT Conveyor Belt Digital Twin", layout="wide")
 st.title("🛰️ Conveyor Belt Digital Twin with MQTT Streaming")
 
-# Global data buffer
+# Data buffer and flag
 data_buffer = deque(maxlen=200)
+message_received = st.empty()
 
-# MQTT Callbacks
+# MQTT callbacks
 def on_connect(client, userdata, flags, rc):
-    client.subscribe("conveyor/data")
+    if rc == 0:
+        print("✅ Connected to MQTT Broker")
+        client.subscribe("conveyor/data")
+    else:
+        print("❌ Failed to connect. Code:", rc)
 
 def on_message(client, userdata, msg):
     payload = json.loads(msg.payload.decode())
+    print("RECEIVED:", payload)
     data_buffer.append(payload)
 
-# Start MQTT subscriber thread
+# Start MQTT client in a thread
 def start_mqtt_listener():
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect("broker.hivemq.com", 1883)
-    client.loop_start()
+    try:
+        client.connect("broker.hivemq.com", 1883)
+        client.loop_forever()
+    except Exception as e:
+        print("❌ MQTT connection failed:", e)
 
 threading.Thread(target=start_mqtt_listener, daemon=True).start()
 
-# Streamlit UI
-st.sidebar.markdown("### Status: Listening to MQTT stream...")
-st.sidebar.write("Live topic: `conveyor/data`")
+st.sidebar.markdown("### MQTT Listening on `conveyor/data`")
+st.sidebar.info("Use `telemetry_publisher.py` to send data")
 
 if len(data_buffer) > 10:
     df = pd.DataFrame(data_buffer)
@@ -45,12 +53,10 @@ if len(data_buffer) > 10:
     fig = px.line(df, x='timestamp', y=['vibration', 'temperature', 'load', 'speed'], title="Sensor Telemetry Trends")
     st.plotly_chart(fig, use_container_width=True)
 
-    # Preprocess and scale
     features = df[['vibration', 'temperature', 'load', 'speed']]
     scaler = MinMaxScaler()
     X_scaled = scaler.fit_transform(features)
 
-    # Autoencoder
     autoencoder = build_autoencoder(X_scaled.shape[1])
     autoencoder.fit(X_scaled, X_scaled, epochs=5, batch_size=16, verbose=0)
     recon = autoencoder.predict(X_scaled)
@@ -63,7 +69,6 @@ if len(data_buffer) > 10:
                       title="Vibration with Anomalies")
     st.plotly_chart(fig2, use_container_width=True)
 
-    # LSTM
     n_steps = 10
     seq_data = X_scaled[:, 0]
     X_seq, y_seq = prepare_sequences(seq_data, n_steps)
@@ -78,4 +83,4 @@ if len(data_buffer) > 10:
     if df['Anomaly'].iloc[-1]:
         st.warning("🚨 Anomaly Detected in Latest Data!")
 else:
-    st.info("Waiting for data from MQTT broker...")
+    st.info("Waiting for MQTT data. Run telemetry_publisher.py in another terminal.")

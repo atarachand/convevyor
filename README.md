@@ -1,23 +1,24 @@
 # Conveyor Belt Digital Twin with MQTT, AI, RUL
 
-This project simulates a real-time conveyor belt digital twin with:
-- MQTT telemetry stream
-- Autoencoder anomaly detection
-- LSTM RUL prediction
-- Streamlit visualization
+This version includes:
+- ✅ MQTT publisher & subscriber
+- ✅ Streamlit dashboard with real-time data
+- ✅ Autoencoder anomaly detection
+- ✅ LSTM RUL prediction
 
-## How to Run
+## To Use
 
-1. Start publisher (simulated sensor)
+1. Start telemetry publisher in one terminal:
 ```bash
 python telemetry_publisher.py
 ```
 
-2. Start dashboard
+2. Start the Streamlit dashboard in another:
 ```bash
 streamlit run dashboard_app.py
 ```
 
-3. Or deploy dashboard to Streamlit Cloud (use `dashboard_app.py`)
+Broker: `broker.hivemq.com`  
+Topic: `conveyor/data`
 
-Live topic: `conveyor/data` (via broker.hivemq.com)
+Make sure both files are running to see live updates.

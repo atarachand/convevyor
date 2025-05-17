@@ -28,11 +28,12 @@ def generate_sensor_data(fault=None):
 def start_publishing(fault=None):
     client = mqtt.Client()
     client.connect("broker.hivemq.com", 1883)
+    client.loop_start()
     while True:
         payload = generate_sensor_data(fault)
+        print("Publishing:", payload)
         client.publish("conveyor/data", json.dumps(payload))
-        print("Published:", payload)
         time.sleep(1)
 
 if __name__ == "__main__":
-    start_publishing(fault=None)  # You can change fault type here
+    start_publishing(fault=None)

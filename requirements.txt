@@ -5,3 +5,4 @@ scikit-learn
 keras
 tensorflow
 plotly
+paho-mqtt

@@ -3,7 +3,6 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, LSTM
 from keras import regularizers
-import tensorflow as tf
 
 def build_autoencoder(input_dim):
     model = Sequential([

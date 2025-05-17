@@ -1,20 +1,23 @@
-# Conveyor Belt Digital Twin with AI
+# Conveyor Belt Digital Twin with MQTT, AI, RUL
 
-This system simulates a real-time conveyor belt monitoring station with:
-
-- Telemetry streaming
-- Fault injection
-- Autoencoder-based anomaly detection
-- LSTM-based RUL prediction
-- High-quality dashboard using Streamlit
+This project simulates a real-time conveyor belt digital twin with:
+- MQTT telemetry stream
+- Autoencoder anomaly detection
+- LSTM RUL prediction
+- Streamlit visualization
 
 ## How to Run
 
+1. Start publisher (simulated sensor)
 ```bash
-pip install -r requirements.txt
+python telemetry_publisher.py
+```
+
+2. Start dashboard
+```bash
 streamlit run dashboard_app.py
 ```
 
-## Deploy to Streamlit Cloud
-- Push to GitHub
-- Use `dashboard_app.py` as entry point
+3. Or deploy dashboard to Streamlit Cloud (use `dashboard_app.py`)
+
+Live topic: `conveyor/data` (via broker.hivemq.com)
